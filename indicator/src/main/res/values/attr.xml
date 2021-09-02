@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="DrawableViewPagerIndicator">
+        <attr name="indicator_drawable" format="reference" />
+        <attr name="indicator_selected_color" format="color" />
+        <attr name="indicator_unselected_color" format="color" />
+        <attr name="indicator_width" format="dimension" />
+        <attr name="indicator_height" format="dimension" />
+        <attr name="indicator_margin" format="dimension" />
+        <attr name="indicator_scale_x" format="float" />
+        <attr name="indicator_scale_y" format="float" />
+    </declare-styleable>
+</resources>

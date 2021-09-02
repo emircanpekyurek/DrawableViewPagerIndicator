@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="default_indicator_width">16dp</dimen>
+    <dimen name="default_indicator_height">6dp</dimen>
+    <dimen name="default_indicator_margin">5dp</dimen>
+
+    <item name="default_indicator_scale_x" type="dimen" format="float">1</item>
+    <item name="default_indicator_scale_y" type="dimen" format="float">1</item>
+
+    <!--Indicator-->
+    <dimen name="viewpager_indicator_radius">3dp</dimen>
+
+
+</resources>
