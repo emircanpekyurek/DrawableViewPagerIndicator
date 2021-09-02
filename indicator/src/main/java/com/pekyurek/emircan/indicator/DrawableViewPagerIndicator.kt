@@ -164,11 +164,13 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
 
     private fun unSelectDot(dotView: View) {
         dotView.animate().scaleX(1f).scaleY(1F)
+        dotView.translationZ = 0F
         dotView.background = indicatorDrawable
     }
 
     private fun selectDot(dotView : View) {
         dotView.background = selectedIndicatorDrawable
+        dotView.translationZ = 10F
         dotView.animate().scaleX(indicatorScaleX).scaleY(indicatorScaleY)
         lastSelectedView = dotView
     }
