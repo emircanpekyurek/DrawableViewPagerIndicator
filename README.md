@@ -4,7 +4,7 @@ This library generates indicator from the icon you choose. You can customize the
 
 You can create a drawable file from xml or use the imported icons.
 
-![materialdots](https://github.com/emircanpekyurek/DrawableViewPagerIndicator/blob/master/readme_gifs/gif_delete.gif)
+![materialdots](https://github.com/emircanpekyurek/DrawableViewPagerIndicator/blob/master/readme_gifs/gif_line.gif)
 
 ![materialdots](https://github.com/emircanpekyurek/DrawableViewPagerIndicator/blob/master/readme_gifs/gif_star.gif)
 
