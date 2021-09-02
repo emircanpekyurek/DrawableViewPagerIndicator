@@ -6,9 +6,9 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
-import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 
@@ -35,6 +35,15 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
 
     private var lastSelectedView: View? = null
 
+    private var viewPager2: ViewPager2? = null
+
+    private val viewPagerAdapterDataObserver = object : RecyclerView.AdapterDataObserver() {
+        override fun onChanged() {
+            super.onChanged()
+            createIndicators()
+        }
+    }
+
     init {
         initLayout()
         setData(context.obtainStyledAttributes(attrs,
@@ -50,7 +59,7 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
 
     private fun setData(typedArray: TypedArray) = typedArray.run {
         indicatorDrawable = getDrawable(R.styleable.DrawableViewPagerIndicator_indicator_drawable)
-            ?: contextDrawable(R.drawable.default_viewpager_indicator)
+            ?: ContextCompat.getDrawable(context, R.drawable.default_viewpager_indicator)
         selectedIndicatorColor =
             getColor(R.styleable.DrawableViewPagerIndicator_indicator_selected_color,
                 ContextCompat.getColor(context, R.color.default_selected_indicator_color))
@@ -77,10 +86,6 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
         recycle()
     }
 
-    private fun contextDrawable(@DrawableRes drawableRes: Int): Drawable? {
-        return ContextCompat.getDrawable(context, drawableRes)
-    }
-
     private fun setUnselectedDrawableTint() {
         indicatorDrawable?.setTint(unSelectedIndicatorColor)
     }
@@ -98,39 +103,37 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
     }
 
     fun setViewPager(viewPager: ViewPager2) {
-        viewPager.adapter?.let { adapter ->
-            createDots(adapter.itemCount, viewPager.currentItem)
-            setOnPageListener(viewPager)
+        viewPager2 = viewPager
+        viewPager.adapter?.let {
+            registerAdapterDataObserver()
+            createIndicators()
         } ?: throw Exception("ViewPager adapter is null")
+    }
+
+    private fun registerAdapterDataObserver() {
+        unRegisterAdapterDataObserver()
+        viewPager2?.adapter?.registerAdapterDataObserver(viewPagerAdapterDataObserver)
+    }
+
+    private fun unRegisterAdapterDataObserver() {
+        try {
+            viewPager2?.adapter?.unregisterAdapterDataObserver(viewPagerAdapterDataObserver)
+        } catch (ignored: java.lang.Exception) { }
+    }
+
+    private fun createIndicators(viewPager: ViewPager? = null) {
+        removeAllViews()
+        viewPager2?.run {
+            createDots(adapter!!.itemCount, currentItem)
+            setOnPageListener(this)
+        } ?: viewPager?.run {
+            createDots(adapter!!.count, currentItem)
+            setOnPageListener(this)
+        }
     }
 
     private fun createDots(itemCount: Int, selectedItemPosition: Int) {
         (0 until itemCount).forEach { addView(createDotView(selectedItemPosition == it)) }
-    }
-
-    private fun setOnPageListener(viewPager: ViewPager2) {
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                fillThisPosition(position)
-            }
-        })
-    }
-
-    private fun fillThisPosition(position: Int) {
-        lastSelectedView?.let { unSelectDot(it) }
-        getChildAt(position)?.let { selectDot(it) }
-    }
-
-    private fun selectDot(dotView : View) {
-        dotView.background = selectedIndicatorDrawable
-        dotView.animate().scaleX(indicatorScaleX).scaleY(indicatorScaleY)
-        lastSelectedView = dotView
-    }
-
-    private fun unSelectDot(dotView: View) {
-        dotView.animate().scaleX(1f).scaleY(1F)
-        dotView.background = indicatorDrawable
     }
 
     private fun createDotView(selectedItem: Boolean): View {
@@ -145,12 +148,40 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
         }
     }
 
+    private fun setOnPageListener(viewPager: ViewPager2) {
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                fillSelectedPosition(position)
+            }
+        })
+    }
+
+    private fun fillSelectedPosition(position: Int) {
+        lastSelectedView?.let { unSelectDot(it) }
+        getChildAt(position)?.let { selectDot(it) }
+    }
+
+    private fun unSelectDot(dotView: View) {
+        dotView.animate().scaleX(1f).scaleY(1F)
+        dotView.background = indicatorDrawable
+    }
+
+    private fun selectDot(dotView : View) {
+        dotView.background = selectedIndicatorDrawable
+        dotView.animate().scaleX(indicatorScaleX).scaleY(indicatorScaleY)
+        lastSelectedView = dotView
+    }
+
     fun setViewPager(viewPager: ViewPager) {
         if (viewPager.adapter == null) {
             throw Exception("ViewPager adapter is null")
         }
-        createDots(viewPager.adapter!!.count, viewPager.currentItem)
-        setOnPageListener(viewPager)
+        removeAllViews()
+        viewPager.addOnAdapterChangeListener { _, _, _ ->
+            createIndicators(viewPager)
+        }
+        createIndicators(viewPager)
     }
 
     private fun setOnPageListener(viewPager: ViewPager) {
@@ -158,12 +189,16 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
             override fun onPageSelected(position: Int) {
-                fillThisPosition(position)
+                fillSelectedPosition(position)
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
         })
     }
 
+    override fun onViewRemoved(child: View?) {
+        super.onViewRemoved(child)
+        unRegisterAdapterDataObserver()
+    }
 
 }
