@@ -4,7 +4,11 @@ This library generates indicator from the icon you choose. You can customize the
 
 You can create a drawable file from xml or use the imported icons.
 
+fill_previous = false:
 ![materialdots](https://github.com/emircanpekyurek/DrawableViewPagerIndicator/blob/master/readme_gifs/gif_line.gif)
+
+fill_previous = true:
+![materialdots](https://github.com/emircanpekyurek/DrawableViewPagerIndicator/blob/master/readme_gifs/gif_line_fill_previous.gif)
 
 ![materialdots](https://github.com/emircanpekyurek/DrawableViewPagerIndicator/blob/master/readme_gifs/gif_star.gif)
 
@@ -14,7 +18,7 @@ You can create a drawable file from xml or use the imported icons.
 
 (app) build.gradle:
 ```gradle
-implementation 'com.github.emircanpekyurek:DrawableViewPagerIndicator:1.0.0'
+implementation 'com.github.emircanpekyurek:DrawableViewPagerIndicator:1.0.1'
 ```
 #### AND
 
@@ -65,6 +69,7 @@ dependencyResolutionManagement {
 | `indicator_scale_y` | selected item scale y |
 | `indicator_selected_color` | selected item color |
 | `indicator_unselected_color` | unselected item color |
+| `fill_previous` | previous items become the selected color |
 
 #### Code:
 ```kotlin
