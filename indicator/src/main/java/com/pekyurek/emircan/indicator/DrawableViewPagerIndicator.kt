@@ -8,6 +8,8 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.children
+import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
@@ -32,6 +34,9 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
     private var indicatorMargin = 0
     private var indicatorScaleX = 1F
     private var indicatorScaleY = 1F
+    private var fillPrevious = false
+
+    private var scaleMargin = 0
 
     private var lastSelectedView: View? = null
 
@@ -81,6 +86,7 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
         indicatorScaleY =
             getFloat(R.styleable.DrawableViewPagerIndicator_indicator_scale_y,
                 ResourcesCompat.getFloat(context.resources, R.dimen.default_indicator_scale_y))
+        fillPrevious = getBoolean(R.styleable.DrawableViewPagerIndicator_fill_previous, false)
         setUnselectedDrawableTint()
         setScalePadding()
         recycle()
@@ -133,6 +139,11 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
     }
 
     private fun createDots(itemCount: Int, selectedItemPosition: Int) {
+        scaleMargin = if (indicatorScaleX > 1) {
+            indicatorMargin + ((indicatorWidth * indicatorScaleX).toInt() - indicatorWidth) / 2
+        } else {
+            indicatorMargin
+        }
         (0 until itemCount).forEach { addView(createDotView(selectedItemPosition == it)) }
     }
 
@@ -158,21 +169,57 @@ class DrawableViewPagerIndicator @JvmOverloads constructor(
     }
 
     private fun fillSelectedPosition(position: Int) {
-        lastSelectedView?.let { unSelectDot(it) }
-        getChildAt(position)?.let { selectDot(it) }
+        if (fillPrevious) {
+            lastSelectedView?.let { scaleUnSelectedDot(it) }
+            children.iterator().withIndex().forEach {
+                when {
+                    position == it.index -> selectDot(it.value)
+                    position < it.index -> fillDot(it.value)
+                    position > it.index -> emptyDot(it.value)
+                }
+            }
+        } else {
+            lastSelectedView?.let { unSelectDot(it) }
+            getChildAt(position)?.let { selectDot(it) }
+        }
     }
 
     private fun unSelectDot(dotView: View) {
+        scaleUnSelectedDot(dotView)
+        fillDot(dotView)
+    }
+
+    private fun scaleUnSelectedDot(dotView: View) {
         dotView.animate().scaleX(1f).scaleY(1F)
         dotView.translationZ = 0F
+        setHorizontalMargin(dotView, indicatorMargin)
+    }
+
+    private fun fillDot(dotView: View) {
         dotView.background = indicatorDrawable
     }
 
     private fun selectDot(dotView : View) {
-        dotView.background = selectedIndicatorDrawable
+        emptyDot(dotView)
+        scaleSelectedDot(dotView)
+        lastSelectedView = dotView
+    }
+
+    private fun scaleSelectedDot(dotView: View) {
         dotView.translationZ = 10F
         dotView.animate().scaleX(indicatorScaleX).scaleY(indicatorScaleY)
-        lastSelectedView = dotView
+        setHorizontalMargin(dotView, scaleMargin)
+    }
+
+    private fun setHorizontalMargin(view: View, margin: Int) {
+        view.updateLayoutParams<LayoutParams> {
+            marginEnd = margin
+            marginStart = margin
+        }
+    }
+
+    private fun emptyDot(dotView: View) {
+        dotView.background = selectedIndicatorDrawable
     }
 
     fun setViewPager(viewPager: ViewPager) {

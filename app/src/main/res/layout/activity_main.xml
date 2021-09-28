@@ -26,6 +26,7 @@
         app:indicator_scale_y="1"
         app:indicator_selected_color="@color/default_selected_indicator_color"
         app:indicator_unselected_color="@color/default_unselected_indicator_color"
+        app:fill_previous="false"
         app:layout_constraintBottom_toBottomOf="@id/viewPager2"
         app:layout_constraintEnd_toEndOf="@+id/viewPager2"
         app:layout_constraintStart_toStartOf="@+id/viewPager2" />
@@ -51,6 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
+        app:fill_previous="true"
         app:layout_constraintBottom_toBottomOf="@id/viewPager"
         app:layout_constraintEnd_toEndOf="@+id/viewPager"
         app:layout_constraintStart_toStartOf="@+id/viewPager" />

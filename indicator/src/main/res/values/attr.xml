@@ -10,5 +10,6 @@
         <attr name="indicator_margin" format="dimension" />
         <attr name="indicator_scale_x" format="float" />
         <attr name="indicator_scale_y" format="float" />
+        <attr name="fill_previous" format="boolean" />
     </declare-styleable>
 </resources>
